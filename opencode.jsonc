@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Projet IngeTrazo : modèle par défaut via le fournisseur « OpenCode Go ».
+  "model": "opencode-go/deepseek-v4.1-flash",
+
+  // Serveur MCP IngeTrazo : il pilote le document OUVERT dans l'application
+  // (le plugin « AI Bridge »). Avant de vous en servir, allumez le pont dans
+  // IngeTrazo : onglet IA ▸ section « Puente IA (MCP) » ▸ « Encender puente »
+  // (ou Extensiones ▸ Puente IA (MCP)). Il écoute alors sur 127.0.0.1:4763.
+  //
+  // Commande portable (fonctionne depuis n'importe quel clone du dépôt, le
+  // serveur est en bibliothèque standard seule). Si vous préférez le binaire
+  // embarqué de l'app installée, remplacez par :
+  //   "command": ["/Users/<vous>/Applications/IngeTrazo.app/Contents/MacOS/ingetrazo-mcp"]
+  "mcp": {
+    "servers": {
+      "ingetrazo": {
+        "type": "local",
+        "command": ["python3", "scripts/ingetrazo_mcp.py"]
+      }
+    }
+  }
+}
