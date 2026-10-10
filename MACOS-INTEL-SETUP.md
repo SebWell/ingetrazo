@@ -72,20 +72,29 @@ explicitement**.
 1. Onglet **IA**.
 2. **Provider** : **OpenCode Go** (pas « Auto »).
 3. **Key** : clé API OpenCode Go (compte OpenCode Go).
-4. **Model** : `deepseek-v4.1-flash` (ou un autre modèle `/chat/completions`).
+4. **Model** : `deepseek-v4.1-flash` (défaut), ou un autre modèle du tableau
+   ci-dessous.
 5. **Test connection** → « OK ».
 
-Côté code, la passerelle OpenCode Go est compatible OpenAI
-(`https://opencode.ai/zen/go/v1`) **mais** exige un en-tête de session
-`x-opencode-session` (sinon `HTTP 400 Missing sessionID`) — voir
-`core/ai.py` (`build_request`) et `plugins/ai_assistant.py` (ID stable par
-conversation).
+Côté code (`core/ai.py`), la passerelle OpenCode Go est compatible OpenAI
+(`https://opencode.ai/zen/go/v1`) **mais** :
 
-Modèles utilisant `/chat/completions` (fonctionnent tels quels) :
-DeepSeek V4.1 Flash / V4 Pro / V4 Flash, GLM-5.3 / 5.3-Flash / 5.2,
-Kimi K3 / K2.7 Code / K2.6, MiMo-*, Hy3/Hy4, Space Bunny, LongCat, Step 5.
-Les autres (Claude Haiku, Qwen, MiniMax → `/messages` ; Grok, GPT Luna,
-Muse Spark → `/responses`) nécessitent un routage par modèle non implémenté.
+- elle exige un en-tête de session `x-opencode-session` (sinon `HTTP 400
+  Missing sessionID`), envoyé par `build_request`/`chat` (ID stable par
+  conversation côté `plugins/ai_assistant.py`) ;
+- elle sert **chaque famille de modèles sur un endpoint différent**, choisi
+  par `_wire_style()` :
+
+| Famille (préfixe du modèle) | Endpoint | Auth |
+|---|---|---|
+| DeepSeek, GLM, Kimi, MiMo, Hy, Space Bunny, LongCat, Step 5 | `/chat/completions` (OpenAI) | `Bearer` |
+| Claude, Qwen, MiniMax | `/messages` (Anthropic) | `x-api-key` |
+| Grok, GPT Luna, Muse Spark | `/responses` (OpenAI Responses) | `Bearer` |
+
+**Vision** : pour OpenCode Go, les familles `claude`, `gpt`, `grok`,
+`gemini`, `qwen` (et tout id contenant `vision`, p. ex.
+`deepseek-v4-flash-vision-exp`) sont traitées comme multimodales : cocher
+« Envoyer les captures d'écran » fait alors parvenir le viewport au modèle.
 
 ## 4. Connecter OpenCode au serveur MCP d'IngeTrazo
 
